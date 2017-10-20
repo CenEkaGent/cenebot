@@ -3,8 +3,10 @@ Slack bot for communication-gamification
 
 ## Instructions
 In order to run the bot, first clone it and set the main directory as the working directory. Then use following steps in order to get the bot up and running:
-1. `npm install`
-2. `npm run`
+```bash
+npm install
+npm run
+```
 This should be enough to get the bot running.
 
 ## Token
