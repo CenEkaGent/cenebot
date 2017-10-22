@@ -4,7 +4,7 @@
   "description": "Bot for the CenEka Slack",
   "main": "index.js",
   "scripts": {
-    "run": "nodemon index.js"
+    "watch": "nodemon index.js"
   },
   "keywords": [
     "CenEka",
@@ -12,13 +12,14 @@
     "Slack"
   ],
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/CenEkaGent/cenebot.git"
+    "type": "git",
+    "url": "https://github.com/CenEkaGent/cenebot.git"
   },
   "author": "Achim Vandierendonck",
   "license": "MIT",
   "dependencies": {
     "@slack/client": "^3.14.1",
+    "fs": "0.0.1-security",
     "nodemon": "^1.12.1"
   }
 }

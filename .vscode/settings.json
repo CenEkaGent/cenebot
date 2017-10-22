@@ -9,6 +9,7 @@
         "**/node_modules": true,
         "**/.gitignore": true,
         "**/LICENSE": true,
-        "**/README.md": true
+        "**/README.md": true,
+        "**/.vscode": true
     }
 }

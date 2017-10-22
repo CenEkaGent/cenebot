@@ -59,3 +59,5 @@ typings/
 
 # User defined ignores
 .DS_Store
+token.txt
+unknown-message-types.txt
