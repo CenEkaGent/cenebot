@@ -1,4 +1,14 @@
 var fs = require('fs');
+var MongoClient = require('mongodb').MongoClient;
+
+const url = 'mongodb://zeus.ugent.be:27017/cenebot';
+
+MongoClient.connect(url, function(err, db) {
+    if (err != null) {
+        console.log("Connected successfully to server");
+        db.close();
+    }   
+});
 
 var RtmClient = require('@slack/client').RtmClient;
 const CLIENT_EVENTS = require('@slack/client').CLIENT_EVENTS;
@@ -86,7 +96,7 @@ function processMessage(data) {
         const user = userIdToUserData[data.from];
         var name;
         if (user === undefined) {
-            debugMessage(`Could not lookup user with id: ${data.from}.\n\`\`\`${data}\`\`\`\n\`\`\`${userIdToUserData}\`\`\``);
+            debugMessage(`Could not lookup user with id: ${data.from}.\n\`\`\`data = {\n\tfrom: ${data.from},\n\tchannel: ${data.channel}\n\ttext: ${data.text}\n}\`\`\``);
             name = "";
         } else {
             if (user.first_name) {
@@ -97,7 +107,7 @@ function processMessage(data) {
         }
         let message = tagMessage[Math.floor(Math.random() * tagMessage.length)];
         message = message.replace(":name:", name);
-        bot.sendMessage(message, data.channel);
+        bot.sendMessage(message, data.channel, (err, msg) => {});
     }
 }
 
@@ -116,7 +126,7 @@ function extractUserData(users) {
  * message: [string] message to send to the debug channel
  */
 function debugMessage(message) {
-    return;
+    bot.sendMessage(message, "G7L4DUD6F", (err, msg) => {});
 }
 
 bot.start();
