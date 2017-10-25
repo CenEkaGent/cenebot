@@ -1,13 +1,18 @@
 var fs = require('fs');
 var MongoClient = require('mongodb').MongoClient;
 
-const url = 'mongodb://zeus.ugent.be:27017/cenebot';
+const url = 'mongodb://localhost:27017/cenebot';
+var db = null;
 
-MongoClient.connect(url, function(err, db) {
-    if (err != null) {
+MongoClient.connect(url, function(err, db_scope) {
+    if (err === null) {
+        db = db_scope;
         console.log("Connected successfully to server");
-        db.close();
-    }   
+    } else {
+        console.log("Problem connecting to the database.");
+        console.log(err);
+        process.exit(1);
+    }
 });
 
 var RtmClient = require('@slack/client').RtmClient;
@@ -76,11 +81,6 @@ bot.on(RTM_EVENTS.MESSAGE, function(message) {
     }
 });
 
-let tagMessage = [
-    "I'm alive:name:, there is no need for you to worry, thanks though :wink:",
-    "You're the best!"
-];
-
 /*
  * data: [JSON] {
  *     from: [string] userId,
@@ -94,10 +94,9 @@ function processMessage(data) {
     if (data.text.length === 0) {
         // Reply the tag message
         const user = userIdToUserData[data.from];
-        var name;
+        var name = "";
         if (user === undefined) {
             debugMessage(`Could not lookup user with id: ${data.from}.\n\`\`\`data = {\n\tfrom: ${data.from},\n\tchannel: ${data.channel}\n\ttext: ${data.text}\n}\`\`\``);
-            name = "";
         } else {
             if (user.first_name) {
                 name = ` ${user.first_name}`;
@@ -105,9 +104,38 @@ function processMessage(data) {
                 name = ` ${user.real_name}`;
             }
         }
-        let message = tagMessage[Math.floor(Math.random() * tagMessage.length)];
-        message = message.replace(":name:", name);
-        bot.sendMessage(message, data.channel, (err, msg) => {});
+
+        if (db === null) {
+            debugMessage("Trying to post tag message without database connection");
+        } else {
+            let tagMessages = db.collection("tagMessages");
+            tagMessages.find({}).toArray((err, tagMessages) => {
+                let message = tagMessages[Math.floor(Math.random() * tagMessages.length)].text;
+                message = message.replace(":name:", name);
+                bot.sendMessage(message, data.channel, (err, msg) => {});
+            });
+        }
+    } else {
+        let command = data.text.split(" ")[0];
+        if (command === "addTagMessage") {
+            data.text = data.text.replace("addTagMessage", "").trim();
+            let tagMessages = db.collection("tagMessages");
+            tagMessages.insertOne({ text: data.text }, (err, result) => {
+                bot.sendMessage("The tag message has been added to the list.", data.channel, (err, msg) => {});
+            });
+        } else if (command === "removeTagMessage") {
+
+        } else if (command === "showTagMessages") {
+            let tagMessages = db.collection("tagMessages");
+            tagMessages.find({}).toArray((err, tagMessages) => {
+                let tagMessage = "```";
+                tagMessages.forEach(function(tagMessage) {
+                    tagMessage += `id: ${tagMessage._id}, text: "${tagMessage.text}"\n`;
+                }, this);
+                let tagMessage = "```";
+                bot.sendMessage(tagMessage, data.channel, (err, msg) => {});
+            });
+        }
     }
 }
 

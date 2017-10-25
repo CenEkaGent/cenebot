@@ -61,3 +61,5 @@ typings/
 .DS_Store
 token.txt
 unknown-message-types.txt
+index.js
+package-lock.json
